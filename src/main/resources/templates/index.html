@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="utf-8"/>
+    <META NAME="robots" CONTENT="noindex,nofollow">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="icon" th:href="@{/img/favicon.ico}">
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/5.0.1/css/bootstrap.min.css}"/>
+
+    <title>Главная | Сервак для музла</title>
+
+    <meta property="og:site_name" content="mc.icomm.pro">
+    <meta property="og:title" content="Главная"/>
+    <meta property="og:description" content="Сервак для музла к моду etched"/>
+    <meta property="og:url" content="https://mc.icomm.pro:28565/music"/>
+    <meta property="og:image" content="https://mc.icomm.pro:28565/img/description_images.jpg"/>
+    <meta property="og:image:secure_url" content="https://mc.icomm.pro:28565//img/description_images.jpg">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta content="#56d59c" data-react-helmet="true" name="theme-color"/>
+</head>
+<body>
+<nav th:replace="~{parts/navbar :: navbar}"></nav>
+
+<div class="m-3 text-center">
+    <h2>Добро пожаловать на главную страницу!</h2>
+    <div class="input-group mb-3 justify-content-center">
+        <div class="card shadow">
+            <div class="card-body">
+                <p>Загрузка нового файла:</p>
+                <form id="formid" enctype="multipart/form-data" action="#" method="POST">
+                    <div class="input-group justify-content-center">
+                        <input id="file" class="form-control" type="file" aria-describedby="inputGroupFileAddon04"
+                               aria-label="Загрузить" required
+                               accept="audio/mpeg3, audio/x-mpeg-3, audio/mpeg, audio/ogg, audio/x-wav, audio/wav"/>
+                        <button class="btn btn-outline-success" type="submit" name="submit" id="inputGroupFileAddon04">
+                            <span id="uploadSpin" class="spinner-border spinner-border-sm" role="status"
+                                  aria-hidden="true"></span>
+                            <span>Отправить файл!</span>
+                        </button>
+                    </div>
+                </form>
+                <span id="uploadError" style="display: none; color: crimson"></span>
+            </div>
+        </div>
+    </div>
+    <button class="btn btn-primary btn-small m-0" id="send"
+            style="border-color: #363535; background-color: #646060; color: #ffffff;"
+            type="button" onclick="refreshFiles()">Обновить список!
+    </button>
+    <h2>Список отправленных файлов:</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Название</th>
+            <th scope="col">Ссылка</th>
+            <th scope="col">Действия</th>
+        </tr>
+        </thead>
+        <tbody id="files"></tbody>
+    </table>
+</div>
+<div class="mb-5"></div>
+
+<footer th:replace="~{parts/footer :: footer}"></footer>
+<script type="text/javascript" th:src="@{/webjars/jquery/3.6.1/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/5.0.1/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/setActiveNavLink.js}"></script>
+<script type="text/javascript" th:src="@{/js/api.js}"></script>
+</body>
+</html>

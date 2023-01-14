@@ -1,0 +1,18 @@
+.input-group-btn {
+    position: relative;
+    /* This avoid the "clear" button being hidden while
+       the input has focus on. */
+    z-index: 1000;
+}
+
+.input-group-btn a.btn {
+    position: absolute;
+    right: 8px;
+    top: 12px;
+}
+
+/* This avoid the bad effect when clicking the button. */
+.input-group-btn a.btn:hover,
+.input-group-btn a.btn:active {
+    box-shadow: none;
+}

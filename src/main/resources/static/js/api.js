@@ -1,14 +1,38 @@
 const form = document.getElementById('formid');
-let origin = window.location.origin;
+const origin = window.location.origin;
+var filesList = [];
+var searchQuery = "";
+
+searchBox.onkeyup = function () {
+    if (searchBox.value === searchQuery)
+        return;
+    // Show all if searchBox.value < searchQuery
+    if (searchBox.value.length < searchQuery.length)
+        filesList.forEach(n => n.hidden = false);
+    searchQuery = searchBox.value.toLowerCase();
+    clearA.hidden = searchBox.value.length === 0
+    // Hide not matching
+    filesList
+        .filter(n => !n.hidden)
+        .filter(n => n.querySelector(".file-name").textContent.toLowerCase().search(searchQuery) === -1)
+        .forEach(n => n.hidden = true);
+};
+
+clearA.onclick = function () {
+    searchBox.value = "";
+    searchBox.onkeyup();
+}
 
 window.onload = async (e) => {
     form.reset();
+    searchBox.value = "";
+    clearA.hidden = searchBox.value.length === 0
     $("#uploadSpin").hide();
     await refreshFiles();
 };
 
 
-function generateDiv(position, filename, url, uuid, fileType) {
+function generateRow(position, filename, url, uuid, fileType) {
     let row = document.createElement("tr");
     let positionColumn = document.createElement("th");
     positionColumn.innerText = `${position + 1}`;
@@ -18,7 +42,7 @@ function generateDiv(position, filename, url, uuid, fileType) {
     let nameColumn = document.createElement("td");
     nameColumn.innerText = filename;
     nameColumn.scope = "row"
-    nameColumn.className = "text-center align-middle";
+    nameColumn.className = "text-center align-middle file-name";
     row.appendChild(nameColumn);
     let linkColumn = document.createElement("td");
     let link = document.createElement("a");
@@ -89,6 +113,7 @@ async function changeText(element, newText, oldText, milliseconds, show) {
 
 function deleteDivs() {
     files.innerHTML = "";
+    filesList.length = 0;
 }
 
 async function deleteFile(uuid) {
@@ -105,7 +130,8 @@ async function refreshFiles() {
     deleteDivs();
     for (let i = 0; i < json.length; i++) {
         let file = json[i];
-        let row = generateDiv(i, file.fileName, file.fileUrl, file.fileUUID, file.fileType);
+        let row = generateRow(i, file.fileName, file.fileUrl, file.fileUUID, file.fileType);
+        filesList.push(row);
         files.appendChild(row);
     }
     $("#send").animate({"opacity": 1}, 500);

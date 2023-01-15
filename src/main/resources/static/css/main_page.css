@@ -5,14 +5,21 @@
     z-index: 1000;
 }
 
-.input-group-btn a.btn {
-    position: absolute;
-    right: 8px;
-    top: 12px;
+#searchBox {
+    padding-right: 16px;
+    border-radius: 5px;
+    width: auto !important;
+    flex: unset !important;
+}
+
+#clearA {
+    margin-left: -40px;
+    margin-top: -2px;
+    z-index: 100;
 }
 
 /* This avoid the bad effect when clicking the button. */
-.input-group-btn a.btn:hover,
-.input-group-btn a.btn:active {
+#clearA:hover,
+#clearA:active {
     box-shadow: none;
 }

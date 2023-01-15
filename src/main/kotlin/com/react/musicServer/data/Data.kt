@@ -53,6 +53,7 @@ object Data {
 
     fun delFromJson(fileName: String) = config.filesList.remove(config.filesList.find { it.fileName == fileName })
 
+    @Throws(IOException::class)
     private suspend fun doTranscoding(filePath: Path, audioSampleRate: Int, bitRate: Long, isMp3: Boolean): String {
         val newFileName = filePath.name.substringBeforeLast(".").plus(".mp3")
         val setFilePath =

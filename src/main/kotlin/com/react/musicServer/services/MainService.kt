@@ -13,7 +13,7 @@ class MainService {
 
     suspend fun delete(uuid: UUID): String? {
         val fileName = Data.delete(uuid)
-        return if (fileName != null){
+        return if (fileName != null) {
             Data.delFromJson(fileName)
             Data.saveToJson()
             fileName
@@ -24,10 +24,14 @@ class MainService {
     suspend fun upload(file: FilePart): Pair<String, UUID> {
         var fileName = file.filename().ifEmpty { "unknown-".plus(Instant.now().epochSecond) }
         var uuid = UUID.nameUUIDFromBytes(fileName.toByteArray())
-        if (Data.config.filesList.stream().anyMatch { it.uuid == uuid || it.fileName == fileName })
-            throw FileAlreadyExistsException(Path.of(".").toFile())
+        val newConvFileName = fileName.substringBeforeLast(".").plus(".mp3")
+        val newConvUUID = UUID.nameUUIDFromBytes(newConvFileName.toByteArray())
+        if (Data.config.filesList.stream().anyMatch {
+                it.uuid == uuid || it.fileName == fileName || it.uuid == newConvUUID || it.fileName == newConvFileName
+        })
+            throw FileAlreadyExistsException(Path.of(Data.folder, fileName).toFile())
         val newFileName = Data.write(fileName, file)
-        if (newFileName != null){
+        if (newFileName != null) {
             fileName = newFileName
             uuid = UUID.nameUUIDFromBytes(newFileName.toByteArray())
         }

@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.springframework.web.reactive.result.method.annotation.ResponseEntityExceptionHandler
 import java.io.FileNotFoundException
-import java.time.LocalDateTime
 import java.nio.file.NoSuchFileException
+import java.time.LocalDateTime
 
 
 @ControllerAdvice
@@ -46,11 +46,11 @@ class FileExceptionAdvice : ResponseEntityExceptionHandler() {
         return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(err)
     }
 
-    /*@ExceptionHandler(Exception::class)
+    @ExceptionHandler(Exception::class)
     fun handleMaxSizeException(exc: Exception): ResponseEntity<Any> {
         val details: MutableList<String?> = ArrayList()
         details.add(exc.message)
         val err = ResponseError(LocalDateTime.now(), "Something went wrong >:(", details)
         return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(err)
-    }*/
+    }
 }

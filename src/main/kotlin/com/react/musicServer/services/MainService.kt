@@ -22,11 +22,15 @@ class MainService {
     }
 
     suspend fun upload(file: FilePart): Pair<String, UUID> {
-        val fileName = file.filename().ifEmpty { "unknown-".plus(Instant.now().epochSecond) }
-        val uuid = UUID.nameUUIDFromBytes(fileName.toByteArray())
+        var fileName = file.filename().ifEmpty { "unknown-".plus(Instant.now().epochSecond) }
+        var uuid = UUID.nameUUIDFromBytes(fileName.toByteArray())
         if (Data.config.filesList.stream().anyMatch { it.uuid == uuid || it.fileName == fileName })
             throw FileAlreadyExistsException(Path.of(".").toFile())
-        Data.write(fileName, file)
+        val newFileName = Data.write(fileName, file)
+        if (newFileName != null){
+            fileName = newFileName
+            uuid = UUID.nameUUIDFromBytes(newFileName.toByteArray())
+        }
         Data.addToJson(fileName, uuid)
         Data.saveToJson()
         return Pair(fileName, uuid)

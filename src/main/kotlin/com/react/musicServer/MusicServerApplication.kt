@@ -14,7 +14,7 @@ import kotlin.io.path.createDirectory
 
 @SpringBootApplication
 class MusicServerApplication {
-    private val log: Logger = LogManager.getLogger(MusicServerApplication::class.java)
+    private val logger: Logger = LogManager.getLogger()
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
@@ -27,18 +27,20 @@ class MusicServerApplication {
         return CommandLineRunner {
             if (!Path(Data.configName).toFile().exists()) {
                 Data.saveToJson(Config())
-                log.info("Initialized config!")
+                logger.info("Initialized config!")
             } else
                 Data.config = Data.readFromJson()
-            val filesPath = Path(Data.folder)
-            try {
-                if (!filesPath.toFile().exists()) {
-                    filesPath.createDirectory()
-                    log.info("Created subdir!")
+            arrayOf(Data.folder, Data.processingFolder).forEach {
+                val filesPath = Path(it)
+                try {
+                    if (!filesPath.toFile().exists()) {
+                        filesPath.createDirectory()
+                        logger.info("Created subdir ${it}!")
+                    }
+                } catch (_: Exception){
                 }
-            } finally {
-                log.info("Done preparing!")
             }
+            logger.info("Done preparing!")
         }
     }
 }

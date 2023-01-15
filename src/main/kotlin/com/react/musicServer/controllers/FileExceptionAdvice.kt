@@ -18,7 +18,7 @@ class FileExceptionAdvice : ResponseEntityExceptionHandler() {
     fun handleFileNotFoundException(exc: FileNotFoundException): ResponseEntity<Any> {
         val details: MutableList<String?> = ArrayList()
         details.add(exc.message)
-        val err = ResponseError(LocalDateTime.now(), "File Not Found", details)
+        val err = ResponseError(LocalDateTime.now(), "Файл не найден", details)
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err)
     }
 
@@ -26,7 +26,7 @@ class FileExceptionAdvice : ResponseEntityExceptionHandler() {
     fun handleFileNotFoundException(exc: NoSuchFileException): ResponseEntity<Any> {
         val details: MutableList<String?> = ArrayList()
         details.add(exc.message)
-        val err = ResponseError(LocalDateTime.now(), "File Not Found", details)
+        val err = ResponseError(LocalDateTime.now(), "Файл не найден (нет такого файла)", details)
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err)
     }
 
@@ -34,7 +34,7 @@ class FileExceptionAdvice : ResponseEntityExceptionHandler() {
     fun handleMaxSizeException(exc: MaxUploadSizeExceededException): ResponseEntity<Any> {
         val details: MutableList<String?> = ArrayList()
         details.add(exc.message)
-        val err = ResponseError(LocalDateTime.now(), "File Size Exceeded", details)
+        val err = ResponseError(LocalDateTime.now(), "Превышен размер файла", details)
         return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(err)
     }
 
@@ -42,7 +42,7 @@ class FileExceptionAdvice : ResponseEntityExceptionHandler() {
     fun handleMaxSizeException(exc: FileAlreadyExistsException): ResponseEntity<Any> {
         val details: MutableList<String?> = ArrayList()
         details.add(exc.message)
-        val err = ResponseError(LocalDateTime.now(), "File Already Exists", details)
+        val err = ResponseError(LocalDateTime.now(), "Файл уже существует", details)
         return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(err)
     }
 
@@ -50,7 +50,7 @@ class FileExceptionAdvice : ResponseEntityExceptionHandler() {
     fun handleMaxSizeException(exc: Exception): ResponseEntity<Any> {
         val details: MutableList<String?> = ArrayList()
         details.add(exc.message)
-        val err = ResponseError(LocalDateTime.now(), "Something went wrong >:(", details)
+        val err = ResponseError(LocalDateTime.now(), "Что-то пошло не так >:(", details)
         return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(err)
     }
 }

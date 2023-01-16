@@ -3,7 +3,6 @@ package com.react.musicServer.data
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.withContext
 import net.bramp.ffmpeg.FFmpeg
@@ -11,6 +10,7 @@ import net.bramp.ffmpeg.FFmpegExecutor
 import net.bramp.ffmpeg.FFprobe
 import net.bramp.ffmpeg.builder.FFmpegBuilder
 import net.bramp.ffmpeg.job.FFmpegJob
+import net.bramp.ffmpeg.probe.FFmpegProbeResult
 import net.bramp.ffmpeg.probe.FFmpegStream
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -22,6 +22,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
+import java.util.concurrent.CompletableFuture
 import kotlin.io.path.*
 
 
@@ -55,7 +56,7 @@ object Data {
     fun delFromJson(fileName: String) = config.filesList.remove(config.filesList.find { it.fileName == fileName })
 
     @Throws(IOException::class)
-    private suspend fun doTranscoding(filePath: Path, audioSampleRate: Int, bitRate: Long, isMp3: Boolean): String {
+    private suspend fun doTranscoding(filePath: Path, audioSampleRate: Int, bitRate: Long, isMp3: Boolean): String? {
         val newFileName = filePath.name.substringBeforeLast(".").plus(".mp3")
         val setFilePath =
             if (isMp3)
@@ -78,11 +79,35 @@ object Data {
         val executor = FFmpegExecutor(ffmpeg, ffprobe)
 
         val job = executor.createJob(builder)
-        job.run()
+        val future = CompletableFuture
+            .runAsync {
+                job.run()
+            }
+            .handle { _, ex ->
+                return@handle if (null != ex) {
+                    logger.error("Failed to handle a file!", ex)
+                    ex
+                } else {
+                    null
+                }
+            }
 
-        while (job.state !in arrayOf(FFmpegJob.State.FAILED, FFmpegJob.State.FINISHED)) {
-            delay(100)
+        withContext(Dispatchers.IO) {
+            val exception = future.get()
+            if (exception != null) {
+                if (filePath.name != newFileName) {
+                    withContext(Dispatchers.IO) {
+                        Files.deleteIfExists(Paths.get(folder, newFileName))
+                    }
+                }
+                withContext(Dispatchers.IO) {
+                    Files.deleteIfExists(setFilePath)
+                }
+                logger.info("Deleted uploaded file ${filePath.name}!")
+                throw exception
+            }
         }
+
         return if (job.state == FFmpegJob.State.FINISHED) {
             if (filePath.name != newFileName || isMp3) {
                 withContext(Dispatchers.IO) {
@@ -92,16 +117,7 @@ object Data {
             logger.info("Done file handling!")
             newFileName
         } else {
-            if (filePath.name != newFileName) {
-                withContext(Dispatchers.IO) {
-                    Files.deleteIfExists(Paths.get(folder, newFileName))
-                }
-            }
-            withContext(Dispatchers.IO) {
-                Files.deleteIfExists(setFilePath)
-            }
-            logger.error("Failed file handling!")
-            filePath.name
+            null
         }
     }
 
@@ -109,7 +125,17 @@ object Data {
         val filepath: Path = Paths.get(dir.toString(), fileName)
         file.transferTo(filepath).awaitSingleOrNull()
 
-        val probeResult = ffprobe.probe(filepath.absolutePathString())
+        val probeResult: FFmpegProbeResult
+        try {
+            probeResult = ffprobe.probe(filepath.absolutePathString())
+        } catch (ex: IOException) {
+            logger.error(ex.message)
+            withContext(Dispatchers.IO) {
+                Files.deleteIfExists(filepath)
+            }
+            logger.info("Deleted uploaded file $fileName!")
+            throw ex
+        }
         logger.info("Format: ${probeResult.format.format_name}")
         logger.info("Bitrate: ${probeResult.format.bit_rate / 1024} kb/s")
         if (probeResult.streams.none { it.codec_type == FFmpegStream.CodecType.AUDIO }) {
@@ -117,6 +143,8 @@ object Data {
             withContext(Dispatchers.IO) {
                 Files.deleteIfExists(filepath)
             }
+            logger.info("Deleted uploaded file $fileName!")
+            throw IOException("No audio streams found in file ${fileName}!")
         }
         return if (
             probeResult.format.format_name in arrayOf("mp3", "ogg") &&
@@ -130,20 +158,17 @@ object Data {
                     probeResult.streams
                         .filter { it.codec_type == FFmpegStream.CodecType.AUDIO && it.bit_rate != 0L }
                         .maxOfOrNull { it.bit_rate }
-                        ?.coerceAtMost(327_680)
-                        ?.coerceAtLeast(32_768)
+                        ?.coerceIn(32_768, 327_680)
                         ?: 0
                     ).coerceAtLeast(
                     probeResult.format.bit_rate
-                        .coerceAtMost(327_680)
-                        .coerceAtLeast(32_768)
+                        .coerceIn(32_768, 327_680)
                 )
             val audioSampleRate = (
                     probeResult.streams
                         .filter { it.codec_type == FFmpegStream.CodecType.AUDIO && it.sample_rate != 0 }
                         .maxOfOrNull { it.sample_rate }
-                        ?.coerceAtMost(FFmpeg.AUDIO_SAMPLE_48000)
-                        ?.coerceAtLeast(FFmpeg.AUDIO_SAMPLE_32000)
+                        ?.coerceIn(FFmpeg.AUDIO_SAMPLE_32000, FFmpeg.AUDIO_SAMPLE_48000)
                         ?: 0
                     ).coerceAtLeast(FFmpeg.AUDIO_SAMPLE_32000)
             logger.info("Found non-compatible file type! Converting to 'mp3'...")

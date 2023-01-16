@@ -39,7 +39,7 @@ class FileExceptionAdvice : ResponseEntityExceptionHandler() {
     }
 
     @ExceptionHandler(FileAlreadyExistsException::class)
-    fun handleMaxSizeException(exc: FileAlreadyExistsException): ResponseEntity<Any> {
+    fun handleFileAlreadyExistsException(exc: FileAlreadyExistsException): ResponseEntity<Any> {
         val details: MutableList<String?> = ArrayList()
         details.add(exc.message)
         val err = ResponseError(LocalDateTime.now(), "Файл уже существует", details)
@@ -47,7 +47,7 @@ class FileExceptionAdvice : ResponseEntityExceptionHandler() {
     }
 
     @ExceptionHandler(Exception::class)
-    fun handleMaxSizeException(exc: Exception): ResponseEntity<Any> {
+    fun handleException(exc: Exception): ResponseEntity<Any> {
         val details: MutableList<String?> = ArrayList()
         details.add(exc.message)
         val err = ResponseError(LocalDateTime.now(), "Что-то пошло не так >:(", details)

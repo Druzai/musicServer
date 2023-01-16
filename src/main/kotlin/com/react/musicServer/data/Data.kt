@@ -3,6 +3,7 @@ package com.react.musicServer.data
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.withContext
 import net.bramp.ffmpeg.FFmpeg
@@ -80,9 +81,7 @@ object Data {
         job.run()
 
         while (job.state !in arrayOf(FFmpegJob.State.FAILED, FFmpegJob.State.FINISHED)) {
-            withContext(Dispatchers.IO) {
-                Thread.sleep(100)
-            }
+            delay(100)
         }
         return if (job.state == FFmpegJob.State.FINISHED) {
             if (filePath.name != newFileName || isMp3) {

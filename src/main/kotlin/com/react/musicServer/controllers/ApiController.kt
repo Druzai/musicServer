@@ -5,6 +5,7 @@ import com.react.musicServer.services.MainService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.codec.multipart.FilePart
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MaxUploadSizeExceededException
 import java.util.*
 
 @RestController
@@ -23,7 +24,13 @@ class ApiController @Autowired constructor(private val service: MainService) {
 //    }
 
     @PostMapping("upload")
-    suspend fun upload(@RequestPart("file") file: FilePart): MessageData {
+    suspend fun upload(
+        @RequestPart("file") file: FilePart,
+        @RequestHeader("Content-Length") contentLength: Long
+    ): MessageData {
+        if (contentLength > 104_857_600){
+            throw MaxUploadSizeExceededException(104_857_600)
+        }
         val pair = service.upload(file)
         return MessageData(
             fileName = pair.first,

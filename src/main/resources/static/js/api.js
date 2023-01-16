@@ -143,6 +143,10 @@ form.onsubmit = async (e) => {
     const url = new URL("api/upload", origin);
 
     try {
+        if (file.files[0].size / 1024 / 1024 > 100) {
+            throw new Error(`Размер файла слишком большой - ${Math.floor(file.files[0].size / 1024 / 1024)} Мб!`)
+        }
+
         const formData = new FormData();
         formData.append("file", file.files[0], file.files[0].name);
         const response = await fetch(url, {
@@ -152,11 +156,11 @@ form.onsubmit = async (e) => {
         const json = await response.json();
         console.log(json);
         if (json["errors"] != null)
-            await changeText(uploadError, json["message"], "", 3000, true);
+            await changeText(uploadError, json["message"] + "\n" + json["errors"].join("\n"), "", 3000, true);
         form.reset();
         await refreshFiles();
     } catch (error) {
-        alert(error);
+        await changeText(uploadError, error, "", 3000, true);
         console.error(error);
     }
     $("#uploadSpin").hide();

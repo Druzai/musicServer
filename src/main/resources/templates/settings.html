@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="utf-8"/>
+    <META NAME="robots" CONTENT="noindex,nofollow">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="icon" th:href="@{/img/favicon.ico}">
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/5.0.1/css/bootstrap.min.css}"/>
+
+    <title>Локальные настройки | Сервак для музла</title>
+
+    <meta property="og:site_name" content="mc.icomm.pro">
+    <meta property="og:title" content="Локальные настройки"/>
+    <meta property="og:description" content="Сервак для музла к моду etched"/>
+    <meta content="#56d59c" data-react-helmet="true" name="theme-color"/>
+</head>
+<body onload="load()">
+<nav th:replace="~{parts/navbar :: navbar}"></nav>
+
+<div class="m-3 text-center">
+    <h2>Локальные настройки для фронта:</h2>
+    <div class="input-group mb-3 justify-content-center">
+        <div class="card shadow">
+            <div class="card-body d-flex flex-column">
+                <label class="p-1" for="checkboxScrollTo">
+                    <input id="checkboxScrollTo" type="checkbox" onclick="save()">
+                    Прокручивать ли страницу к загруженной записи (также
+                    подсвечивает жёлтым) после её успешной загрузки?
+                </label>
+                <label class="p-1" for="checkboxAutoplay">
+                    <input id="checkboxAutoplay" type="checkbox" onclick="save()">
+                    Включить автовоспроизведение по нажатию кнопки "Воспроизвести"?
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mb-5"></div>
+
+<footer th:replace="~{parts/footer :: footer}"></footer>
+<script type="text/javascript" th:src="@{/webjars/jquery/3.6.1/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/5.0.1/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/setActiveNavLink.js}"></script>
+<script type="text/javascript" th:src="@{/js/settings.js}"></script>
+</body>
+</html>

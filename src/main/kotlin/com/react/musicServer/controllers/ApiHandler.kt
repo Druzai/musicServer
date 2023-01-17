@@ -25,13 +25,9 @@ class ApiHandler constructor(@Autowired private val service: MainService) {
         return ServerResponse.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + String(pair.second.toByteArray(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1) + "\"")
             .header(HttpHeaders.ACCEPT_CHARSET, "utf-8")
-//            .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
-//            .header(HttpHeaders.PRAGMA, "no-cache")
-//            .header(HttpHeaders.EXPIRES, "0")
             .header(HttpHeaders.CONTENT_TYPE, withContext(Dispatchers.IO) {
                 URLConnection.guessContentTypeFromName(pair.second)
             })
-//            .bodyAndAwait()
             .bodyValueAndAwait(pair.first)
     }
 
@@ -41,9 +37,7 @@ class ApiHandler constructor(@Autowired private val service: MainService) {
         return ServerResponse.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + String(pair.second.toByteArray(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1) + "\"")
             .header(HttpHeaders.ACCEPT_CHARSET, "utf-8")
-//            .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
-//            .header(HttpHeaders.PRAGMA, "no-cache")
-//            .header(HttpHeaders.EXPIRES, "0")
+//            .header(HttpHeaders.CONTENT_LENGTH, pair.first.size.toString())
             .header(HttpHeaders.CONTENT_TYPE, withContext(Dispatchers.IO) {
                 URLConnection.guessContentTypeFromName(pair.second)
             })

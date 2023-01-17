@@ -31,13 +31,14 @@ class ApiController @Autowired constructor(private val service: MainService) {
         if (contentLength > 104_857_600){
             throw MaxUploadSizeExceededException(104_857_600)
         }
-        val pair = service.upload(file)
+        val triple = service.upload(file)
         return MessageData(
-            fileName = pair.first,
+            fileName = triple.first,
             fileUrl = ""
                 .plus("/api/download/")
-                .plus(pair.second),
-            fileUUID = pair.second.toString(),
+                .plus(triple.second),
+            fileUUID = triple.second.toString(),
+            fileTranscoded = triple.third,
             message = "File uploaded with success!"
         )
     }

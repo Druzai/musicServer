@@ -8,11 +8,16 @@ import org.springframework.web.bind.annotation.GetMapping
 class MainController {
     @GetMapping("/")
     suspend fun index(model: Model): String{
-        return "redirect:/music";
+        return "index";
     }
 
     @GetMapping("/music")
     suspend fun indexMusic(model: Model): String{
-        return "index";
+        return "music";
+    }
+
+    @GetMapping("/settings")
+    suspend fun indexSettings(model: Model): String{
+        return "settings";
     }
 }

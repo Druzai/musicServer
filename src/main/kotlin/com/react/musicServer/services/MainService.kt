@@ -21,7 +21,7 @@ class MainService {
             null
     }
 
-    suspend fun upload(file: FilePart): Pair<String, UUID> {
+    suspend fun upload(file: FilePart): Triple<String, UUID, Boolean> {
         var fileName = file.filename().ifEmpty { "unknown-".plus(Instant.now().epochSecond) }
         var uuid = UUID.nameUUIDFromBytes(fileName.toByteArray())
         val newConvFileName = fileName.substringBeforeLast(".").plus(".mp3")
@@ -37,7 +37,7 @@ class MainService {
         }
         Data.addToJson(fileName, uuid)
         Data.saveToJson()
-        return Pair(fileName, uuid)
+        return Triple(fileName, uuid, newFileName != null)
     }
 
 //    suspend fun upload(file: FilePart): Pair<String, UUID> {

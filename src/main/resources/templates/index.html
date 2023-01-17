@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link rel="icon" th:href="@{/img/favicon.ico}">
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/5.0.1/css/bootstrap.min.css}"/>
-    <link rel="stylesheet" type="text/css" th:href="@{/css/main_page.css}"/>
 
     <title>Главная | Сервак для музла</title>
 
@@ -21,71 +20,13 @@
 
 <div class="m-3 text-center">
     <h2>Добро пожаловать на главную страницу!</h2>
-    <div class="input-group mb-3 justify-content-center">
-        <div class="card shadow">
-            <div class="card-body">
-                <p>Загрузка нового файла:</p>
-                <form id="formid" enctype="multipart/form-data" action="#" method="POST">
-                    <div class="input-group justify-content-center">
-                        <input id="file" class="form-control" type="file" aria-describedby="inputGroupFileAddon04"
-                               aria-label="Загрузить" required accept="audio/*, video/*"/>
-                        <button class="btn btn-outline-success" type="submit" name="submit" id="inputGroupFileAddon04">
-                            <span id="uploadSpin" class="spinner-border spinner-border-sm" role="status"
-                                  aria-hidden="true"></span>
-                            <span>Отправить файл!</span>
-                        </button>
-                    </div>
-                </form>
-                <span id="uploadError" style="display: none; color: crimson"></span>
-            </div>
-        </div>
-    </div>
-    <div class="input-group mb-3 justify-content-center">
-        <div class="card shadow">
-            <div class="card-body align-content-center">
-                <div class="input-group m-2">
-                    <input id="searchBox" placeholder="Поиск файла" type="text" class="form-control">
-                    <span class="input-group-btn">
-                        <button id="clearA" type="button" class="btn bg-transparent">
-                            <svg fill="#000000" height="15px" width="15px" version="1.1" id="Capa_1"
-                                 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                 viewBox="0 0 460.775 460.775" xml:space="preserve">
-                                    <path d="M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55
-                                        c-4.127,0-8.08,1.639-10.993,4.55l-171.138,171.14L59.25,4.565c-2.913-2.911-6.866-4.55-10.993-4.55
-                                        c-4.126,0-8.08,1.639-10.992,4.55L4.558,37.284c-6.077,6.075-6.077,15.909,0,21.986l171.138,171.128L4.575,401.505
-                                        c-6.074,6.077-6.074,15.911,0,21.986l32.709,32.719c2.911,2.911,6.865,4.55,10.992,4.55c4.127,0,8.08-1.639,10.994-4.55
-                                        l171.117-171.12l171.118,171.12c2.913,2.911,6.866,4.55,10.993,4.55c4.128,0,8.081-1.639,10.992-4.55l32.709-32.719
-                                        c6.074-6.075,6.074-15.909,0-21.986L285.08,230.397z"/>
-                            </svg>
-                        </button>
-                    </span>
-                </div>
-                <button class="btn btn-primary btn-small m-0" id="send"
-                        style="border-color: #363535; background-color: #646060; color: #ffffff;"
-                        type="button" onclick="refreshFiles()">Обновить список!
-                </button>
-            </div>
-        </div>
-    </div>
-    <h2>Список отправленных файлов:</h2>
-    <table class="table">
-        <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Название</th>
-            <th scope="col">Ссылка</th>
-            <th scope="col">Действия</th>
-        </tr>
-        </thead>
-        <tbody id="files"></tbody>
-    </table>
+    <p>Этот сервак нужен для мода <a href="https://www.curseforge.com/minecraft/mc-mods/etched">etched</a>!</p>
 </div>
-<div class="mb-3"></div>
+<div class="mb-5"></div>
 
 <footer th:replace="~{parts/footer :: footer}"></footer>
 <script type="text/javascript" th:src="@{/webjars/jquery/3.6.1/jquery.min.js}"></script>
 <script type="text/javascript" th:src="@{/webjars/bootstrap/5.0.1/js/bootstrap.min.js}"></script>
 <script type="text/javascript" th:src="@{/js/setActiveNavLink.js}"></script>
-<script type="text/javascript" th:src="@{/js/api.js}"></script>
 </body>
 </html>

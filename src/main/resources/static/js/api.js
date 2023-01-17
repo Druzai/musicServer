@@ -86,7 +86,7 @@ function generateRow(position, filename, url, uuid, fileType) {
         let audio = document.createElement("audio");
         audio.className = "m-1";
         audio.controls = true;
-        audio.autoplay = true;
+        audio.autoplay = JSON.parse(localStorage.getItem('checkboxAutoplay')) ?? true
         actionsColumn.appendChild(audio);
         let source = document.createElement("source");
         source.src = url;
@@ -99,10 +99,11 @@ function generateRow(position, filename, url, uuid, fileType) {
     return row;
 }
 
-async function changeText(element, newText, oldText, milliseconds, show) {
+async function changeText(element, newText, oldText, milliseconds, show, color) {
     if (show) {
         element.style.display = "block";
     }
+    element.style.color = color;
     element.innerText = newText;
     await new Promise(resolve => setTimeout(resolve, milliseconds));
     element.innerText = oldText;
@@ -124,7 +125,7 @@ async function deleteFile(uuid) {
 }
 
 async function refreshFiles() {
-    $("#send").animate({"opacity": 0.5}, 500);
+    $("#send").animate({"opacity": 0.5}, 300);
     let response = await fetch(new URL("api/getMusic", origin));
     let json = await response.json();
     deleteDivs();
@@ -134,7 +135,60 @@ async function refreshFiles() {
         filesList.push(row);
         files.appendChild(row);
     }
-    $("#send").animate({"opacity": 1}, 500);
+    $("#send").animate({"opacity": 1}, 300);
+}
+
+async function scrollToNewFile(filename, milliseconds) {
+    if (JSON.parse(localStorage.getItem('checkboxScrollTo')) ?? false) {
+        await new Promise(resolve => setTimeout(resolve, milliseconds));
+        const elem = [...document.querySelectorAll("td.file-name")].filter(e => e.innerText === filename).pop()?.parentNode
+        await smoothScroll(elem);
+        $(elem).animate({backgroundColor: "#ffd700"}, 500);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        $(elem).animate({backgroundColor: "#ffffff"}, 500);
+    }
+}
+
+function smoothScroll(elem, options) {
+    return new Promise((resolve) => {
+        if (!(elem instanceof Element)) {
+            throw new TypeError('Argument 1 must be an Element');
+        }
+        let same = 0; // a counter
+        let lastPos = null; // last known Y position
+        // pass the user defined options along with our default
+        const scrollOptions = Object.assign({behavior: 'smooth'}, options);
+
+        // let's begin
+        elem.scrollIntoView(scrollOptions);
+        requestAnimationFrame(check);
+
+        // this function will be called every painting frame
+        // for the duration of the smooth scroll operation
+        function check() {
+            // check our current position
+            const newPos = elem.getBoundingClientRect().top;
+
+            if (newPos === lastPos) { // same as previous
+                if (same++ > 2) { // if it's more than two frames
+                    /* @todo: verify it succeeded
+                     * if(isAtCorrectPosition(elem, options) {
+                     *   resolve();
+                     * } else {
+                     *   reject();
+                     * }
+                     * return;
+                     */
+                    return resolve(); // we've come to an halt
+                }
+            } else {
+                same = 0; // reset our counter
+                lastPos = newPos; // remember our current position
+            }
+            // check again next painting frame
+            requestAnimationFrame(check);
+        }
+    });
 }
 
 form.onsubmit = async (e) => {
@@ -156,11 +210,14 @@ form.onsubmit = async (e) => {
         const json = await response.json();
         console.log(json);
         if (json["errors"] != null)
-            await changeText(uploadError, json["message"] + "\n" + json["errors"].join("\n"), "", 3000, true);
+            changeText(uploadResult, json["message"] + "\n" + json["errors"].join("\n"), "", 3000, true, "crimson");
+        else
+            changeText(uploadResult, `Файл ${json["fileName"]} был загружен!` + (json["fileTranscoded"] ? "\nФайл был перекодирован в 'mp3'!" : ""), "", 3000, true, "green");
         form.reset();
         await refreshFiles();
+        scrollToNewFile(json["fileName"], 1000)
     } catch (error) {
-        await changeText(uploadError, error, "", 3000, true);
+        changeText(uploadResult, error, "", 3000, true, "crimson");
         console.error(error);
     }
     $("#uploadSpin").hide();

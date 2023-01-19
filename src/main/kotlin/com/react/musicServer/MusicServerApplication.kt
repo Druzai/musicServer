@@ -1,5 +1,6 @@
 package com.react.musicServer
 
+import com.react.musicServer.data.CertChain
 import com.react.musicServer.data.Config
 import com.react.musicServer.data.Data
 import org.apache.logging.log4j.LogManager
@@ -25,6 +26,13 @@ class MusicServerApplication {
     @Bean
     fun demoData(): CommandLineRunner? {
         return CommandLineRunner {
+            CertChain()
+                .load("DigiCertGlobalRootCA.crt")
+                .load("AmazonRootCA1.cer")
+                .load("Comodo_AAA_Certificate_Services.crt")
+                .done()
+            logger.info("Injected certificates!")
+
             if (!Path(Data.configName).toFile().exists()) {
                 Data.saveToJson(Config())
                 logger.info("Initialized config!")

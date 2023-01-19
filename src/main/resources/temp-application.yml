@@ -1,11 +1,10 @@
-spring:
 server:
-  http2:
-    enabled: true
+#  http2:
+#    enabled: true
   port: 8080
-  ssl:
-    enabled: true
-    key-store: ./keystore.jks
-    key-store-password: password
-    key-store-type: JKS
-    key-alias: musicserv
+#  ssl:
+#    enabled: true
+#    key-store: ./keystore.jks
+#    key-store-password: password
+#    key-store-type: JKS
+#    key-alias: musicserv

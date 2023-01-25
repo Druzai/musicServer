@@ -35,6 +35,13 @@
                         </button>
                     </div>
                 </form>
+                <form id="formUrl" action="#" enctype="application/x-www-form-urlencoded" th:action="@{/api/upload/yt}" method="POST" target="_self">
+                    <div class="input-group justify-content-center">
+                        <input name="url" class="form-control" type="url" aria-describedby="inputGroupFileAddon04"
+                               aria-label="Загрузить" required/>
+                        <button class="btn btn-outline-success" type="submit" >Отправить URL</button>
+                    </div>
+                </form>
                 <span id="uploadResult" style="display: none;"></span>
             </div>
         </div>
@@ -47,7 +54,7 @@
                     <span class="input-group-btn">
                         <button id="clearA" type="button" class="btn bg-transparent">
                             <svg fill="#000000" height="15px" width="15px" version="1.1" id="Capa_1"
-                                 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                 xmlns="http://www.w3.org/2000/svg"
                                  viewBox="0 0 460.775 460.775" xml:space="preserve">
                                     <path d="M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55
                                         c-4.127,0-8.08,1.639-10.993,4.55l-171.138,171.14L59.25,4.565c-2.913-2.911-6.866-4.55-10.993-4.55
@@ -80,7 +87,7 @@
     </table>
 </div>
 <button onclick="topFunction()" id="myBtn" title="К началу страницы">
-    <svg fill="#000000" height="50px" width="50px" version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    <svg fill="#000000" height="50px" width="50px" version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg"
          viewBox="0 0 32 32" xml:space="preserve">
         <path d="M16,2C8.3,2,2,8.3,2,16s6.3,14,14,14s14-6.3,14-14S23.7,2,16,2z M21.7,18.7C21.5,18.9,21.3,19,21,19s-0.5-0.1-0.7-0.3
             L16,14.4l-4.3,4.3c-0.4,0.4-1,0.4-1.4,0s-0.4-1,0-1.4l5-5c0.4-0.4,1-0.4,1.4,0l5,5C22.1,17.7,22.1,18.3,21.7,18.7z"/>

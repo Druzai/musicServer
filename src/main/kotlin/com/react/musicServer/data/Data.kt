@@ -28,6 +28,7 @@ import kotlin.io.path.*
 
 object Data {
     private val logger: Logger = LogManager.getLogger()
+    const val MAX_FILE_SIZE = 104_857_600L
     const val folder: String = "musicFiles"
     const val processingFolder: String = "musicFiles/processing"
     const val configName: String = "config.json"

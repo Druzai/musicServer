@@ -36,9 +36,8 @@ class ApiController @Autowired constructor(
         @RequestPart("file") file: FilePart,
         @RequestHeader("Content-Length") contentLength: Long
     ): MessageData {
-        if (contentLength > Data.MAX_FILE_SIZE) {
+        if (contentLength > Data.MAX_FILE_SIZE)
             throw MaxUploadSizeExceededException(Data.MAX_FILE_SIZE)
-        }
         val result = service.upload(RemoteFilePart(file))
         return MessageData(
             fileName = result.filename,

@@ -178,7 +178,7 @@ object Data {
                 bitRate,
                 probeResult.format.format_name == "mp3" || fileName.endsWith(".mp3")
             )
-        }
+        } // TODO: Add new size check, after conversion (m4a -> mp3 uncompressed, eg)
     }
 
     fun read(uuid: UUID, dir: Path = Path(folder)): Pair<ByteArray, String>? {

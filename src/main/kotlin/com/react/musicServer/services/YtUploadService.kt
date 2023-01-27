@@ -9,7 +9,12 @@ import com.github.kiulian.downloader.model.videos.VideoInfo
 import com.github.kiulian.downloader.model.videos.formats.AudioFormat
 import com.react.musicServer.data.Data
 import com.react.musicServer.data.RemoteFile
+import com.react.musicServer.services.exceptions.DownloadFailedException
+import com.react.musicServer.services.exceptions.InvalidLinkException
+import com.react.musicServer.services.exceptions.UploadSizeExceededException
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
 import org.apache.logging.log4j.LogManager
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -26,7 +31,9 @@ import kotlin.io.path.name
 class YtUploadService @Autowired constructor(
     private val mainService: MainService,
 ) {
-    private val downloader = YoutubeDownloader()
+    private val downloader = YoutubeDownloader().also {
+        it.config.maxRetries = 1
+    }
     private val logger = LogManager.getLogger()
 
     suspend fun upload(url: String): MainService.UploadResult {
@@ -34,7 +41,7 @@ class YtUploadService @Autowired constructor(
         val videoInfo = retrieveVideoInfo(videoId)
         val audio = videoInfo.bestAudioFormat() ?: throw InvalidLinkException("Unable to find audio format")
         if (audio.contentLength() > Data.MAX_FILE_SIZE)
-            throw UploadSizeExceededException("Audio track presented is too long (${audio.contentLength()})")
+            throw UploadSizeExceededException("Audio track presented is too long (${audio.contentLength()/(1024*1024)} MB)")
         val title = "${videoInfo.details().title()}.${audio.extension().value()}"
         return mainService.upload(RemoteYtFile(audio, title))
     }
@@ -51,13 +58,12 @@ class YtUploadService @Autowired constructor(
                     logger.debug("Download: $progress%")
                 }
 
-                override fun onFinished(data: File?)
-                    = if (data != null)
-                        continuation.resume(data)
-                    else
-                        continuation.resumeWithException(
-                            DownloadFailedException("No file found on download finish")
-                        )
+                override fun onFinished(data: File?) = if (data != null)
+                    continuation.resume(data)
+                else
+                    continuation.resumeWithException(
+                        DownloadFailedException("No file found on download finish")
+                    )
 
                 override fun onError(throwable: Throwable) {
                     continuation.resumeWithException(throwable)
@@ -66,23 +72,27 @@ class YtUploadService @Autowired constructor(
         downloader.downloadVideoFile(request)
     }
 
-    private suspend fun retrieveVideoInfo(videoId: String) =
-        suspendCancellableCoroutine { continuation ->
-            val request = RequestVideoInfo(videoId)
-                .callback(object : YoutubeCallback<VideoInfo?> {
-                    override fun onFinished(videoInfo: VideoInfo?)
-                        = if (videoInfo != null)
+    private suspend fun retrieveVideoInfo(videoId: String) = try {
+        withTimeout(10000L) {
+            suspendCancellableCoroutine<VideoInfo> { continuation ->
+                val request = RequestVideoInfo(videoId)
+                    .callback(object : YoutubeCallback<VideoInfo?> {
+                        override fun onFinished(videoInfo: VideoInfo?) = if (videoInfo != null)
                             continuation.resume(videoInfo)
                         else
                             continuation.resumeWithException(InvalidLinkException("Unable to get video info"))
 
-                    override fun onError(throwable: Throwable) {
-                        logger.error("Failed to load video info (id: $videoId) : ${throwable.message}")
-                        continuation.resumeWithException(throwable)
-                    }
-                }).async()
-            downloader.getVideoInfo(request)
+                        override fun onError(throwable: Throwable) {
+                            logger.error("Failed to load video info (id: $videoId) : ${throwable.message}")
+                            continuation.resumeWithException(throwable)
+                        }
+                    }).async()
+                downloader.getVideoInfo(request)
+            }
         }
+    } catch (_: TimeoutCancellationException) {
+        throw InvalidLinkException("Unable to receive video info, timeout")
+    }
 
     private fun extractId(url: String): String {
         val parsedUrl = URI.create(url).toURL()
@@ -101,15 +111,10 @@ class YtUploadService @Autowired constructor(
 
     private val URL.rootPath get() = path.split("/").getOrNull(1) ?: ""
 
-    sealed class YtUploadException(override val message: String) : RuntimeException(message)
-    class UploadSizeExceededException(message: String) : YtUploadException(message)
-    class InvalidLinkException(message: String) : YtUploadException(message)
-    class DownloadFailedException(message: String) : YtUploadException(message)
-
     inner class RemoteYtFile(
         private val source: AudioFormat,
         title: String
-    ): RemoteFile {
+    ) : RemoteFile {
         override val name = title
 
         override suspend fun save(filepath: Path) {

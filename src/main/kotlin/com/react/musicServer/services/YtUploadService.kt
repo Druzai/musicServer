@@ -29,15 +29,25 @@ class YtUploadService {
         val audio = videoInfo.bestAudioFormat() ?: throw InvalidLinkException("Unable to find audio format")
         if (audio.contentLength() > Data.MAX_FILE_SIZE)
             throw UploadSizeExceededException("Audio track presented is too long (${audio.contentLength()})")
-        val file = downloadFromYt(audio)
+        val title = getTitle(videoInfo)
+        val file = downloadFromYt(audio, title)
         logger.debug("Saved ${file.absolutePath}")
     }
 
-    private suspend fun downloadFromYt(format: AudioFormat) = suspendCancellableCoroutine { continuation ->
+    private fun getTitle(info: VideoInfo): String {
+        val title = info.details().title()
+        return if (title.isNullOrBlank()) {
+            logger.warn("No title found (video id: ${info.details().videoId()}), use default one")
+            "unnamed song"
+        } else title.take(40)
+    }
+
+    private suspend fun downloadFromYt(format: AudioFormat, name: String) = suspendCancellableCoroutine { continuation ->
         val outputDir = File(Data.processingFolder)
         logger.debug("Starting downloading from ${format.url()}")
         val request = RequestVideoFileDownload(format)
             .saveTo(outputDir)
+            .renameTo(name)
             .callback(object : YoutubeProgressCallback<File?> {
                 override fun onDownloading(progress: Int) {
                     logger.debug("Download: $progress%")

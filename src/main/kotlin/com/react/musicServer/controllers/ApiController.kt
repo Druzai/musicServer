@@ -54,10 +54,15 @@ class ApiController @Autowired constructor(
         method = [RequestMethod.POST],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
     )
-    suspend fun uploadFromYoutube(
-        exchange: ServerWebExchange
-    ) {
+    suspend fun uploadFromYoutube(exchange: ServerWebExchange): MessageData {
         val formData = exchange.awaitFormData()
-        ytUploadService.upload(formData["url"]?.firstOrNull()!!)
+        val result = ytUploadService.upload(formData["url"]?.firstOrNull()!!)
+        return MessageData(
+            fileName = result.filename,
+            fileUrl = "/api/download/${result.id}",
+            fileUUID = result.id,
+            fileTranscoded = result.wasTranscoded,
+            message = "Audio uploaded with success!"
+        )
     }
 }

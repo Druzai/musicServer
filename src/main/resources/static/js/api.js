@@ -28,6 +28,7 @@ window.onload = async (e) => {
     searchBox.value = "";
     clearA.hidden = searchBox.value.length === 0
     $("#uploadSpin").hide();
+    $(uploadUrlSpin).hide();
     await refreshFiles();
 };
 
@@ -221,6 +222,36 @@ form.onsubmit = async (e) => {
         console.error(error);
     }
     $("#uploadSpin").hide();
+}
+
+formUrl.onsubmit = async (e) => {
+    e.preventDefault();
+    $(uploadUrlSpin).show();
+    const url = new URL("api/upload/yt", origin);
+
+    try {
+        if (inputUrl.value.indexOf("list=") !== -1)
+            changeText(uploadResult, "Только одно видео из плейлиста будет загружено!", "", 3000, true, "green");
+        const formData = new URLSearchParams();
+        formData.set("url", inputUrl.value);
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        const json = await response.json();
+        console.log(json);
+        if (json["errors"] != null)
+            changeText(uploadResult, json["message"] + "\n" + json["errors"].join("\n"), "", 3000, true, "crimson");
+        else
+            changeText(uploadResult, `Звук из видео ${json["fileName"]} был загружен!`, "", 3000, true, "green");
+        formUrl.reset();
+        await refreshFiles();
+        scrollToNewFile(json["fileName"], 1000)
+    } catch (error) {
+        changeText(uploadResult, error, "", 3000, true, "crimson");
+        console.error(error);
+    }
+    $(uploadUrlSpin).hide();
 }
 
 function fallbackCopyTextToClipboard(text) {

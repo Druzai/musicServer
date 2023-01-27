@@ -35,11 +35,15 @@
                         </button>
                     </div>
                 </form>
-                <form id="formUrl" action="#" enctype="application/x-www-form-urlencoded" th:action="@{/api/upload/yt}" method="POST" target="_self">
-                    <div class="input-group justify-content-center">
-                        <input name="url" class="form-control" type="url" aria-describedby="inputGroupFileAddon04"
+                <form id="formUrl" action="#" method="POST">
+                    <div class="input-group justify-content-center mt-3">
+                        <input id="inputUrl" name="url" class="form-control" type="url" aria-describedby="inputGroupFileAddon04"
                                aria-label="Загрузить" required/>
-                        <button class="btn btn-outline-success" type="submit" >Отправить URL</button>
+                        <button class="btn btn-outline-success" type="submit" name="submit">
+                            <span id="uploadUrlSpin" class="spinner-border spinner-border-sm" role="status"
+                                  aria-hidden="true"></span>
+                            <span>Отправить URL</span>
+                        </button>
                     </div>
                 </form>
                 <span id="uploadResult" style="display: none;"></span>

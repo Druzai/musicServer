@@ -36,17 +36,15 @@ class ApiController @Autowired constructor(
         @RequestPart("file") file: FilePart,
         @RequestHeader("Content-Length") contentLength: Long
     ): MessageData {
-        if (contentLength > Data.MAX_FILE_SIZE){
+        if (contentLength > Data.MAX_FILE_SIZE) {
             throw MaxUploadSizeExceededException(Data.MAX_FILE_SIZE)
         }
-        val triple = service.upload(file)
+        val result = service.upload(RemoteFilePart(file))
         return MessageData(
-            fileName = triple.first,
-            fileUrl = ""
-                .plus("/api/download/")
-                .plus(triple.second),
-            fileUUID = triple.second.toString(),
-            fileTranscoded = triple.third,
+            fileName = result.filename,
+            fileUrl = "/api/download/${result.id}",
+            fileUUID = result.id,
+            fileTranscoded = result.wasTranscoded,
             message = "File uploaded with success!"
         )
     }

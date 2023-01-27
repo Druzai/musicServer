@@ -3,7 +3,6 @@ package com.react.musicServer.data
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.withContext
 import net.bramp.ffmpeg.FFmpeg
 import net.bramp.ffmpeg.FFmpegExecutor
@@ -14,7 +13,6 @@ import net.bramp.ffmpeg.probe.FFmpegProbeResult
 import net.bramp.ffmpeg.probe.FFmpegStream
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import org.springframework.http.codec.multipart.FilePart
 import java.io.IOException
 import java.io.Reader
 import java.io.Writer
@@ -122,10 +120,9 @@ object Data {
         }
     }
 
-    suspend fun write(fileName: String, file: FilePart, dir: Path = Path(folder)): String? {
+    suspend fun write(fileName: String, file: RemoteFile, dir: Path = Path(folder)): String? {
         val filepath: Path = Paths.get(dir.toString(), fileName)
-        file.transferTo(filepath).awaitSingleOrNull()
-
+        file.save(filepath)
         val probeResult: FFmpegProbeResult
         try {
             probeResult = ffprobe.probe(filepath.absolutePathString())

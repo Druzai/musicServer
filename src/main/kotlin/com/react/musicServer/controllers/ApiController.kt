@@ -3,7 +3,7 @@ package com.react.musicServer.controllers
 import com.react.musicServer.data.Data
 import com.react.musicServer.data.message.MessageData
 import com.react.musicServer.data.filepart.RemoteFilePart
-import com.react.musicServer.services.MainService
+import com.react.musicServer.services.MainUploadService
 import com.react.musicServer.services.YoutubeUploadService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -17,7 +17,7 @@ import java.util.*
 @RestController
 @RequestMapping("api")
 class ApiController @Autowired constructor(
-    private val service: MainService,
+    private val service: MainUploadService,
     private val youtubeUploadService: YoutubeUploadService,
 ) {
 //    @GetMapping("download/{uuid:.+}")
@@ -38,7 +38,7 @@ class ApiController @Autowired constructor(
         @RequestHeader("Content-Length") contentLength: Long
     ): MessageData {
         if (contentLength > Data.MAX_FILE_SIZE)
-            throw MaxUploadSizeExceededException(Data.MAX_FILE_SIZE)
+            throw MaxUploadSizeExceededException(contentLength)
         val result = service.upload(RemoteFilePart(file))
         return MessageData(
             fileName = result.filename,

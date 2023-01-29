@@ -3,6 +3,7 @@ package com.react.musicServer.services
 import com.react.musicServer.data.Data
 import com.react.musicServer.data.filepart.RemoteFile
 import com.react.musicServer.data.message.UploadResult
+import com.react.musicServer.exceptions.ConvertedFileSizeLimitException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bramp.ffmpeg.FFmpeg
@@ -23,20 +24,21 @@ import java.time.Instant
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.fileSize
 import kotlin.io.path.moveTo
 import kotlin.io.path.name
 
 
 @Service
-class MainService {
+class MainUploadService {
     private val logger: Logger = LogManager.getLogger()
     private val ffmpeg: FFmpeg = FFmpeg()
     private val ffprobe: FFprobe = FFprobe()
 
     companion object {
         val anonymousFilename get() = "unknown-${Instant.now().epochSecond}"
-        const val MAX_FILENAME_SIZE = 100
-        val DENIED_SYMBOLS = "\\W+".toRegex()
+        const val MAX_FILENAME_SIZE = 240
+//        val DENIED_SYMBOLS = "\\W+".toRegex()
     }
 
     suspend fun download(uuid: UUID): Pair<ByteArray, String>? = Data.read(uuid)
@@ -57,8 +59,10 @@ class MainService {
         val newConvUUID = UUID.nameUUIDFromBytes(newConvFileName.toByteArray())
         if (Data.config.filesList.any {
                 it.uuid == uuid || it.fileName == fileName || it.uuid == newConvUUID || it.fileName == newConvFileName
-            }) // TODO: What if content differs, but names are the same? Consider use hashes.
+            }) {
+            // TODO: What if content differs, but names are the same? Consider use hashes.
             throw FileAlreadyExistsException(Path.of(Data.folder, fileName).toFile())
+        }
         val newFileName = checkForTranscoding(fileName, Data.write(fileName, file))
         if (newFileName != null) {
             fileName = newFileName
@@ -79,10 +83,12 @@ class MainService {
         val name = rawTitle.substringBeforeLast('.')
         val extension = rawTitle.substringAfterLast('.')
         // TODO: Save titles separately from filenames, because filenames have "limitations"
-        return name.take(MAX_FILENAME_SIZE)
-            .replace(DENIED_SYMBOLS, " ")
+        return name
+            .take(MAX_FILENAME_SIZE)
+//            .replace(DENIED_SYMBOLS, " ")
             .replace("\\s+".toRegex(), " ")
-            .trim() + ".$extension"
+            .trim()
+            .plus(".$extension")
     }
 
     @Throws(IOException::class)
@@ -110,12 +116,13 @@ class MainService {
         }
         return if (
             probeResult.format.format_name in arrayOf("mp3", "ogg") &&
-            probeResult.streams.filter { it.codec_type == FFmpegStream.CodecType.AUDIO }.any {
-                it.channels == 2 && it.sample_rate >= FFmpeg.AUDIO_SAMPLE_32000
-            }
-        )
+            probeResult.streams
+                .filter { it.codec_type == FFmpegStream.CodecType.AUDIO }
+                .any { it.channels == 2 && it.sample_rate >= FFmpeg.AUDIO_SAMPLE_32000 }
+        ) {
+            filepath.moveTo(Paths.get(Data.folder, fileName), true)
             null
-        else {
+        } else {
             val bitRate = (
                     probeResult.streams
                         .filter { it.codec_type == FFmpegStream.CodecType.AUDIO && it.bit_rate != 0L }
@@ -142,7 +149,7 @@ class MainService {
                 bitRate,
                 probeResult.format.format_name == "mp3" || fileName.endsWith(".mp3")
             )
-        } // TODO: Add new size check, after conversion (m4a -> mp3 uncompressed, eg)
+        }
     }
 
     @Throws(IOException::class)
@@ -153,16 +160,17 @@ class MainService {
         isMp3: Boolean
     ): String? {
         val newFileName = filePath.name.substringBeforeLast(".").plus(".mp3")
-        val setFilePath =
+        val newFilePath = Paths.get(Data.folder, newFileName)
+        val oldFilePath =
             if (isMp3)
-                filePath.moveTo(Paths.get(Data.processingFolder, filePath.name), true)
+                filePath.moveTo(Paths.get(Data.processingMp3Folder, filePath.name), true)
             else
                 filePath
 
         val builder = FFmpegBuilder()
-            .setInput(setFilePath.normalize().toString())
+            .setInput(oldFilePath.normalize().toString())
             .overrideOutputFiles(true)
-            .addOutput(Paths.get(Data.folder, newFileName).normalize().toString())
+            .addOutput(newFilePath.normalize().toString())
             .setFormat("mp3")
             .setAudioChannels(FFmpeg.AUDIO_STEREO)
             .setAudioCodec("mp3")
@@ -192,11 +200,11 @@ class MainService {
             if (exception != null) {
                 if (filePath.name != newFileName) {
                     withContext(Dispatchers.IO) {
-                        Files.deleteIfExists(Paths.get(Data.folder, newFileName))
+                        Files.deleteIfExists(newFilePath)
                     }
                 }
                 withContext(Dispatchers.IO) {
-                    Files.deleteIfExists(setFilePath)
+                    Files.deleteIfExists(oldFilePath)
                 }
                 logger.info("Deleted uploaded file ${filePath.name}!")
                 throw exception
@@ -206,8 +214,16 @@ class MainService {
         return if (job.state == FFmpegJob.State.FINISHED) {
             if (filePath.name != newFileName || isMp3) {
                 withContext(Dispatchers.IO) {
-                    Files.deleteIfExists(setFilePath)
+                    Files.deleteIfExists(oldFilePath)
                 }
+            }
+            val fileSize = newFilePath.fileSize()
+            if (fileSize > Data.MAX_FILE_SIZE) {
+                withContext(Dispatchers.IO) {
+                    Files.deleteIfExists(newFilePath)
+                }
+                logger.error("Conversion failed! Converted file size is too big!")
+                throw ConvertedFileSizeLimitException(fileSize)
             }
             logger.info("Done file handling!")
             newFileName

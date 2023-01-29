@@ -17,6 +17,7 @@ object Data {
     const val MAX_FILE_SIZE = 104_857_600L
     const val folder: String = "musicFiles"
     const val processingFolder: String = "musicFiles/processing"
+    const val processingMp3Folder: String = "musicFiles/processing/mp3"
     const val configName: String = "config.json"
     var config: Config = Config()
 
@@ -40,7 +41,7 @@ object Data {
 
     fun delFromJson(fileName: String) = config.filesList.remove(config.filesList.find { it.fileName == fileName })
 
-    suspend fun write(fileName: String, file: RemoteFile, dir: Path = Path(folder)): Path {
+    suspend fun write(fileName: String, file: RemoteFile, dir: Path = Path(processingFolder)): Path {
         val filepath: Path = Paths.get(dir.toString(), fileName)
         // TODO: Change to save to processing folder
         //  Then rename to uuid

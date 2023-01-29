@@ -29,7 +29,7 @@ import kotlin.io.path.name
 
 
 @Service
-class YoutubeUploadService @Autowired constructor(private val mainService: MainService) {
+class YoutubeUploadService @Autowired constructor(private val mainUploadService: MainUploadService) {
     private val downloader = YoutubeDownloader().also {
         it.config.maxRetries = 1
     }
@@ -46,7 +46,7 @@ class YoutubeUploadService @Autowired constructor(private val mainService: MainS
         if (audio.contentLength() > Data.MAX_FILE_SIZE)
             throw MaxUploadSizeExceededException(audio.contentLength())
         val title = "${videoInfo.details().title()}.${audio.extension().value()}"
-        return mainService.upload(RemoteYoutubeFile(audio, title))
+        return mainUploadService.upload(RemoteYoutubeFile(audio, title))
     }
 
     private suspend fun downloadFromYoutube(format: AudioFormat, path: Path) =

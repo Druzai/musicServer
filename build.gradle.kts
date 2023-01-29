@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.react.musicServer"
-version = "0.1"
+version = "0.2"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 configurations {

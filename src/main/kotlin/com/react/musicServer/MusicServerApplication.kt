@@ -30,7 +30,7 @@ class MusicServerApplication {
                 logger.info("Initialized config!")
             } else
                 Data.config = Data.readFromJson()
-            arrayOf(Data.folder, Data.processingFolder).forEach {
+            arrayOf(Data.folder, Data.processingFolder, Data.processingMp3Folder).forEach {
                 val filesPath = Path(it)
                 try {
                     if (!filesPath.toFile().exists()) {

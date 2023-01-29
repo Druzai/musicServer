@@ -4,13 +4,13 @@ var filesList = [];
 var searchQuery = "";
 
 searchBox.onkeyup = function () {
-    if (searchBox.value === searchQuery)
+    if (searchBox.value.toLowerCase() === searchQuery)
         return;
     // Show all if searchBox.value < searchQuery
     if (searchBox.value.length < searchQuery.length)
         filesList.forEach(n => n.hidden = false);
     searchQuery = searchBox.value.toLowerCase();
-    clearA.hidden = searchBox.value.length === 0
+    clearA.hidden = searchBox.value.length === 0;
     // Hide not matching
     filesList
         .filter(n => !n.hidden)
@@ -23,11 +23,23 @@ clearA.onclick = function () {
     searchBox.onkeyup();
 }
 
+inputUrl.onkeyup = function () {
+    clearUrl.hidden = inputUrl.value.length === 0;
+}
+
+clearUrl.onclick = function () {
+    formUrl.reset();
+    clearUrl.hidden = true;
+}
+
 window.onload = async (e) => {
     form.reset();
+    formUrl.reset();
     searchBox.value = "";
-    clearA.hidden = searchBox.value.length === 0
+    clearA.hidden = searchBox.value.length === 0;
+    clearUrl.hidden = inputUrl.value.length === 0;
     $("#uploadSpin").hide();
+    $(uploadUrlSpin).hide();
     await refreshFiles();
 };
 
@@ -198,7 +210,7 @@ form.onsubmit = async (e) => {
 
     try {
         if (file.files[0].size / 1024 / 1024 > 100) {
-            throw new Error(`Размер файла слишком большой - ${Math.floor(file.files[0].size / 1024 / 1024)} Мб!`)
+            throw new Error(`Размер файла слишком большой - ${Math.floor(file.files[0].size / (1024 * 1024))} Мб!`)
         }
 
         const formData = new FormData();
@@ -221,6 +233,36 @@ form.onsubmit = async (e) => {
         console.error(error);
     }
     $("#uploadSpin").hide();
+}
+
+formUrl.onsubmit = async (e) => {
+    e.preventDefault();
+    $(uploadUrlSpin).show();
+    const url = new URL("api/upload/youtube", origin);
+
+    try {
+        if (inputUrl.value.indexOf("list=") !== -1)
+            changeText(uploadResult, "Только одно видео из плейлиста будет загружено!", "", 3000, true, "green");
+        const formData = new URLSearchParams();
+        formData.set("url", inputUrl.value);
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        const json = await response.json();
+        console.log(json);
+        if (json["errors"] != null)
+            changeText(uploadResult, json["message"] + "\n" + json["errors"].join("\n"), "", 3000, true, "crimson");
+        else
+            changeText(uploadResult, `Звук из видео ${json["fileName"]} был загружен!`, "", 3000, true, "green");
+        formUrl.reset();
+        await refreshFiles();
+        scrollToNewFile(json["fileName"], 1000)
+    } catch (error) {
+        changeText(uploadResult, error, "", 3000, true, "crimson");
+        console.error(error);
+    }
+    $(uploadUrlSpin).hide();
 }
 
 function fallbackCopyTextToClipboard(text) {

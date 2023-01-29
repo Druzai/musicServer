@@ -12,7 +12,8 @@
     flex: unset !important;
 }
 
-#clearA {
+#clearA,
+#clearUrl {
     margin-left: -40px;
     margin-top: -2px;
     z-index: 100;
@@ -20,7 +21,9 @@
 
 /* This avoid the bad effect when clicking the button. */
 #clearA:hover,
-#clearA:active {
+#clearA:active,
+#clearUrl:hover,
+#clearUrl:active {
     box-shadow: none;
 }
 

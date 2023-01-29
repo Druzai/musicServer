@@ -1,4 +1,4 @@
-package com.react.musicServer.data
+package com.react.musicServer.data.message
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import lombok.AllArgsConstructor

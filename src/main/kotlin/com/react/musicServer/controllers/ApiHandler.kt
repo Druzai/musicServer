@@ -1,8 +1,8 @@
 package com.react.musicServer.controllers
 
 import com.react.musicServer.data.Data
-import com.react.musicServer.data.MessageData
-import com.react.musicServer.services.MainService
+import com.react.musicServer.data.message.MessageData
+import com.react.musicServer.services.MainUploadService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,7 +18,7 @@ import java.util.*
 import java.util.stream.Collectors
 
 @Component
-class ApiHandler constructor(@Autowired private val service: MainService) {
+class ApiHandler constructor(@Autowired private val service: MainUploadService) {
     suspend fun download(request: ServerRequest): ServerResponse {
         val uuid = UUID.fromString(request.pathVariable("uuid"))
         val pair = service.download(uuid) ?: throw FileNotFoundException("Could not find file!")

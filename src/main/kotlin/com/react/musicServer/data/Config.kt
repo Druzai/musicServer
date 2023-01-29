@@ -1,6 +1,6 @@
 package com.react.musicServer.data
 
-import java.util.UUID
+import java.util.*
 
 data class Config (val filesList: ArrayList<Entry> = arrayListOf())
 

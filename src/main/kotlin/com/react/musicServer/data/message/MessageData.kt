@@ -1,4 +1,4 @@
-package com.react.musicServer.data
+package com.react.musicServer.data.message
 
 import lombok.AllArgsConstructor
 import lombok.Data

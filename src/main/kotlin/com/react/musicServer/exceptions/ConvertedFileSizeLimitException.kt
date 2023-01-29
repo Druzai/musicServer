@@ -1,0 +1,5 @@
+package com.react.musicServer.exceptions
+
+import org.springframework.web.multipart.MaxUploadSizeExceededException
+
+class ConvertedFileSizeLimitException(maxConvertedFileSize: Long) : MaxUploadSizeExceededException(maxConvertedFileSize)

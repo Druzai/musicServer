@@ -25,6 +25,7 @@ clearA.onclick = function () {
 
 window.onload = async (e) => {
     form.reset();
+    formUrl.reset();
     searchBox.value = "";
     clearA.hidden = searchBox.value.length === 0
     $("#uploadSpin").hide();
@@ -199,7 +200,7 @@ form.onsubmit = async (e) => {
 
     try {
         if (file.files[0].size / 1024 / 1024 > 100) {
-            throw new Error(`Размер файла слишком большой - ${Math.floor(file.files[0].size / 1024 / 1024)} Мб!`)
+            throw new Error(`Размер файла слишком большой - ${Math.floor(file.files[0].size / (1024 * 1024))} Мб!`)
         }
 
         const formData = new FormData();

@@ -43,8 +43,6 @@ object Data {
 
     suspend fun write(fileName: String, file: RemoteFile, dir: Path = Path(processingFolder)): Path {
         val filepath: Path = Paths.get(dir.toString(), fileName)
-        // TODO: Change to save to processing folder
-        //  Then rename to uuid
         file.save(filepath)
         return filepath
     }

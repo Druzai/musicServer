@@ -38,7 +38,7 @@ class MainUploadService {
     companion object {
         val anonymousFilename get() = "unknown-${Instant.now().epochSecond}"
         const val MAX_FILENAME_SIZE = 240
-//        val DENIED_SYMBOLS = "\\W+".toRegex()
+        val DENIED_SYMBOLS = "<|>|:|\"|/|\\|\\||\\?|\\*|[\\x00-\\x31]".toRegex()
     }
 
     suspend fun download(uuid: UUID): Pair<ByteArray, String>? = Data.read(uuid)
@@ -83,12 +83,17 @@ class MainUploadService {
         val name = rawTitle.substringBeforeLast('.')
         val extension = rawTitle.substringAfterLast('.')
         // TODO: Save titles separately from filenames, because filenames have "limitations"
-        return name
+        //  Suggestion: Use UUID as filenames in file system
+        val handledName = name
             .take(MAX_FILENAME_SIZE)
-//            .replace(DENIED_SYMBOLS, " ")
+            .replace(DENIED_SYMBOLS, "")
             .replace("\\s+".toRegex(), " ")
             .trim()
-            .plus(".$extension")
+        return if (handledName.isEmpty())
+            anonymousFilename.plus(".$extension")
+        else
+            handledName.plus(".$extension")
+
     }
 
     @Throws(IOException::class)

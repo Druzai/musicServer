@@ -85,10 +85,10 @@ class MainUploadService {
         // TODO: Save titles separately from filenames, because filenames have "limitations"
         //  Suggestion: Use UUID as filenames in file system
         val handledName = name
-            .take(MAX_FILENAME_SIZE)
             .replace(DENIED_SYMBOLS, "")
             .replace("\\s+".toRegex(), " ")
             .trim()
+            .take(MAX_FILENAME_SIZE)
         return if (handledName.isEmpty())
             anonymousFilename.plus(".$extension")
         else

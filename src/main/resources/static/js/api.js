@@ -4,13 +4,13 @@ var filesList = [];
 var searchQuery = "";
 
 searchBox.onkeyup = function () {
-    if (searchBox.value === searchQuery)
+    if (searchBox.value.toLowerCase() === searchQuery)
         return;
     // Show all if searchBox.value < searchQuery
     if (searchBox.value.length < searchQuery.length)
         filesList.forEach(n => n.hidden = false);
     searchQuery = searchBox.value.toLowerCase();
-    clearA.hidden = searchBox.value.length === 0
+    clearA.hidden = searchBox.value.length === 0;
     // Hide not matching
     filesList
         .filter(n => !n.hidden)
@@ -23,11 +23,21 @@ clearA.onclick = function () {
     searchBox.onkeyup();
 }
 
+inputUrl.onkeyup = function () {
+    clearUrl.hidden = inputUrl.value.length === 0;
+}
+
+clearUrl.onclick = function () {
+    formUrl.reset();
+    clearUrl.hidden = true;
+}
+
 window.onload = async (e) => {
     form.reset();
     formUrl.reset();
     searchBox.value = "";
-    clearA.hidden = searchBox.value.length === 0
+    clearA.hidden = searchBox.value.length === 0;
+    clearUrl.hidden = inputUrl.value.length === 0;
     $("#uploadSpin").hide();
     $(uploadUrlSpin).hide();
     await refreshFiles();

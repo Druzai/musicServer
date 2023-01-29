@@ -38,7 +38,7 @@ class MainUploadService {
     companion object {
         val anonymousFilename get() = "unknown-${Instant.now().epochSecond}"
         const val MAX_FILENAME_SIZE = 240
-        val DENIED_SYMBOLS = "<|>|:|\"|/|\\|\\||\\?|\\*".toRegex()
+        val DENIED_SYMBOLS = "[<>:\"/\\\\|?*]".toRegex()
     }
 
     suspend fun download(uuid: UUID): Pair<ByteArray, String>? = Data.read(uuid)
@@ -102,7 +102,7 @@ class MainUploadService {
         try {
             probeResult = ffprobe.probe(filepath.absolutePathString())
         } catch (ex: IOException) {
-            logger.error(ex.message)
+            logger.error(ex.message, ex)
             withContext(Dispatchers.IO) {
                 Files.deleteIfExists(filepath)
             }

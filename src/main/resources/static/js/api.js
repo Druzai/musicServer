@@ -227,7 +227,7 @@ form.onsubmit = async (e) => {
 formUrl.onsubmit = async (e) => {
     e.preventDefault();
     $(uploadUrlSpin).show();
-    const url = new URL("api/upload/yt", origin);
+    const url = new URL("api/upload/youtube", origin);
 
     try {
         if (inputUrl.value.indexOf("list=") !== -1)

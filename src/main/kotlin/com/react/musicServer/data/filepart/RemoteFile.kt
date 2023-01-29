@@ -1,4 +1,4 @@
-package com.react.musicServer.data
+package com.react.musicServer.data.filepart
 
 import java.nio.file.Path
 

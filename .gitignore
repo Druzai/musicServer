@@ -40,3 +40,4 @@ application.yml
 config.json
 musicFiles
 *.log
+*.gz

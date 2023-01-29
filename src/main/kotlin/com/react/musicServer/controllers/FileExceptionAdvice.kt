@@ -1,8 +1,7 @@
 package com.react.musicServer.controllers
 
-import com.react.musicServer.data.ResponseError
-import com.react.musicServer.services.exceptions.UploadSizeExceededException
-import com.react.musicServer.services.exceptions.YtUploadException
+import com.react.musicServer.data.message.ResponseError
+import com.react.musicServer.exceptions.YoutubeUploadException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -33,26 +32,23 @@ class FileExceptionAdvice : ResponseEntityExceptionHandler() {
     @ExceptionHandler(MaxUploadSizeExceededException::class)
     fun handleMaxSizeException(exc: MaxUploadSizeExceededException): ResponseEntity<Any> {
         val details = arrayListOf(exc.message)
-        val err = ResponseError(LocalDateTime.now(), "Превышен размер файла", details)
-        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(err)
-    }
-
-    @ExceptionHandler(UploadSizeExceededException::class)
-    fun handleUploadSizeExceededException(exc: UploadSizeExceededException): ResponseEntity<Any> {
-        val details = arrayListOf(exc.message)
-        val err = ResponseError(LocalDateTime.now(), "Превышен размер файла", details)
-        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(err)
+        val err = ResponseError(
+            LocalDateTime.now(),
+            String.format("Превышен размер файла (%.0f%) МБ", exc.maxUploadSize / (1024 * 1024)),
+            details
+        )
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(err)
     }
 
     @ExceptionHandler(FileAlreadyExistsException::class)
     fun handleFileAlreadyExistsException(exc: FileAlreadyExistsException): ResponseEntity<Any> {
         val details = arrayListOf(exc.message)
         val err = ResponseError(LocalDateTime.now(), "Файл уже существует", details)
-        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(err)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err)
     }
 
-    @ExceptionHandler(YtUploadException::class)
-    fun handleYtUploadException(exc: YtUploadException): ResponseEntity<Any> {
+    @ExceptionHandler(YoutubeUploadException::class)
+    fun handleYtUploadException(exc: YoutubeUploadException): ResponseEntity<Any> {
         val details = arrayListOf(exc.message)
         val err = ResponseError(LocalDateTime.now(), "Не удалось загрузить звук из видео", details)
         return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(err)
@@ -62,6 +58,6 @@ class FileExceptionAdvice : ResponseEntityExceptionHandler() {
     fun handleException(exc: Exception): ResponseEntity<Any> {
         val details = arrayListOf(exc.message)
         val err = ResponseError(LocalDateTime.now(), "Что-то пошло не так >:(", details)
-        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(err)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(err)
     }
 }

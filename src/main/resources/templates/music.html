@@ -35,10 +35,12 @@
                         </button>
                     </div>
                 </form>
+                <p class="mt-2">Загрузка аудио с YouTube видео:</p>
                 <form id="formUrl" action="#" method="POST">
                     <div class="input-group justify-content-center mt-3">
-                        <input id="inputUrl" name="url" class="form-control" type="url" aria-describedby="inputGroupFileAddon04"
-                               aria-label="Загрузить" required/>
+                        <input id="inputUrl" name="url" class="form-control" type="url"
+                               aria-describedby="inputGroupFileAddon04" aria-label="Загрузить"
+                               placeholder="URL видео с YouTube" required/>
                         <button class="btn btn-outline-success" type="submit" name="submit">
                             <span id="uploadUrlSpin" class="spinner-border spinner-border-sm" role="status"
                                   aria-hidden="true"></span>
@@ -104,6 +106,8 @@
 <script type="text/javascript" th:src="@{/js/setActiveNavLink.js}"></script>
 <script type="text/javascript" th:src="@{/js/api.js}"></script>
 <script type="text/javascript" th:src="@{/js/button.js}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-color/2.1.2/jquery.color.min.js" integrity="sha512-VjRpiWhUqdNa9bwBV7LnlG8CwsCVPenFyOQTSRTOGHw/tjtME96zthh0Vv9Itf3i8w4CkUrdYaS6+dAt1m1YXQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-color/2.1.2/jquery.color.min.js"
+        integrity="sha512-VjRpiWhUqdNa9bwBV7LnlG8CwsCVPenFyOQTSRTOGHw/tjtME96zthh0Vv9Itf3i8w4CkUrdYaS6+dAt1m1YXQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 package com.react.musicServer.controllers
 
 import com.react.musicServer.data.Data
-import com.react.musicServer.data.MessageData
+import com.react.musicServer.data.message.MessageData
 import com.react.musicServer.services.MainService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

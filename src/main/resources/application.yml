@@ -7,4 +7,7 @@ server:
 #    key-store: ./keystore.jks
 #    key-store-password: password
 #    key-store-type: JKS
-#    key-alias: musicserv
+#    key-alias: keystore-key
+#logging:
+#  level:
+#    root: DEBUG

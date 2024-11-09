@@ -256,6 +256,7 @@ formUrl.onsubmit = async (e) => {
         else
             changeText(uploadResult, `Звук из видео ${json["fileName"]} был загружен!`, "", 3000, true, "green");
         formUrl.reset();
+        clearUrl.hidden = true;
         await refreshFiles();
         scrollToNewFile(json["fileName"], 1000)
     } catch (error) {

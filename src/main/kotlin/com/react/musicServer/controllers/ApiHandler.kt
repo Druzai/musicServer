@@ -23,7 +23,13 @@ class ApiHandler constructor(@Autowired private val service: MainUploadService) 
         val uuid = UUID.fromString(request.pathVariable("uuid"))
         val pair = service.download(uuid) ?: throw FileNotFoundException("Could not find file!")
         return ServerResponse.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + String(pair.second.toByteArray(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1) + "\"")
+            .header(
+                HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + String(
+                    pair.second.toByteArray(StandardCharsets.UTF_8),
+                    StandardCharsets.ISO_8859_1
+                ) + "\""
+            )
             .header(HttpHeaders.ACCEPT_CHARSET, "utf-8")
             .header(HttpHeaders.CONTENT_TYPE, withContext(Dispatchers.IO) {
                 URLConnection.guessContentTypeFromName(pair.second)
@@ -35,7 +41,13 @@ class ApiHandler constructor(@Autowired private val service: MainUploadService) 
         val uuid = UUID.fromString(request.pathVariable("uuid"))
         val pair = service.download(uuid) ?: throw FileNotFoundException("Could not find file!")
         return ServerResponse.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + String(pair.second.toByteArray(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1) + "\"")
+            .header(
+                HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + String(
+                    pair.second.toByteArray(StandardCharsets.UTF_8),
+                    StandardCharsets.ISO_8859_1
+                ) + "\""
+            )
             .header(HttpHeaders.ACCEPT_CHARSET, "utf-8")
 //            .header(HttpHeaders.CONTENT_LENGTH, pair.first.size.toString())
             .header(HttpHeaders.CONTENT_TYPE, withContext(Dispatchers.IO) {
@@ -51,7 +63,7 @@ class ApiHandler constructor(@Autowired private val service: MainUploadService) 
             .bodyValueAndAwait(
                 MessageData(
                     fileName = fileName,
-                    fileUrl = request.uri().toString(),
+                    fileUrl = request.getHostAndScheme().plus(request.path()),
                     fileUUID = uuid.toString(),
                     message = "File deleted with success!"
                 )
@@ -90,7 +102,7 @@ class ApiHandler constructor(@Autowired private val service: MainUploadService) 
                 Data.config.filesList.stream().map {
                     MessageData(
                         fileName = it.fileName,
-                        fileUrl = request.uri().toString().removeSuffix(request.path())
+                        fileUrl = request.getHostAndScheme()
                             .plus("/api/download/")
                             .plus(it.uuid),
                         fileUUID = it.uuid.toString(),
@@ -99,4 +111,13 @@ class ApiHandler constructor(@Autowired private val service: MainUploadService) 
                     )
                 }.collect(Collectors.toList())
             )
+
+    private fun ServerRequest.getHostAndScheme(): String {
+        val serverName = headers().firstHeader("X-SSL-SNI-ServerName")
+        return if (!serverName.isNullOrBlank()) {
+            "https://$serverName"
+        } else {
+            uri().toString().removeSuffix(path())
+        }
+    }
 }

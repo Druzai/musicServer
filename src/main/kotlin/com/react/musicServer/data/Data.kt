@@ -47,15 +47,11 @@ object Data {
         return filepath
     }
 
-    fun read(uuid: UUID, dir: Path = Path(folder)): Pair<ByteArray, String>? {
+    fun read(uuid: UUID, dir: Path = Path(folder)): Path? {
         val fileName = config.filesList.find { it.uuid == uuid }?.fileName
-        return if (fileName != null) {
-            val filepath: Path = Paths.get(dir.toString(), fileName)
-            val byteArray: ByteArray
-            Files.newInputStream(filepath).use { os -> byteArray = os.readAllBytes() }
-            Pair(byteArray, fileName)
-        } else
-            null
+        return if (fileName != null)
+            Paths.get(dir.toString(), fileName)
+        else null
     }
 
     fun delete(uuid: UUID, dir: Path = Path(folder)): String? {
@@ -63,7 +59,6 @@ object Data {
         return if (fileName != null) {
             val filepath: Path = Paths.get(dir.toString(), fileName)
             if (filepath.deleteIfExists()) fileName else null
-        } else
-            null
+        } else null
     }
 }

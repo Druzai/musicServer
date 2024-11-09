@@ -15,6 +15,8 @@ import net.bramp.ffmpeg.probe.FFmpegProbeResult
 import net.bramp.ffmpeg.probe.FFmpegStream
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.springframework.core.io.Resource
+import org.springframework.core.io.UrlResource
 import org.springframework.stereotype.Service
 import java.io.IOException
 import java.nio.file.Files
@@ -41,7 +43,12 @@ class MainUploadService {
         val DENIED_SYMBOLS = "[<>:\"/\\\\|?*]".toRegex()
     }
 
-    suspend fun download(uuid: UUID): Pair<ByteArray, String>? = Data.read(uuid)
+    suspend fun download(uuid: UUID): Pair<Resource, String>? {
+        val path = Data.read(uuid)
+        return if (path != null)
+            Pair(UrlResource(path.toUri()), path.toString())
+        else null
+    }
 
     suspend fun delete(uuid: UUID): String? {
         val fileName = Data.delete(uuid)

@@ -46,7 +46,7 @@ class MainUploadService {
     suspend fun download(uuid: UUID): Pair<Resource, String>? {
         val path = Data.read(uuid)
         return if (path != null)
-            Pair(UrlResource(path.toUri()), path.toString())
+            Pair(UrlResource(path.toUri()), path.fileName.toString())
         else null
     }
 

@@ -1,11 +1,12 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     id("org.springframework.boot") version "3.0.1"
     id("io.spring.dependency-management") version "1.1.0"
-    kotlin("jvm") version "1.7.22"
-    kotlin("plugin.spring") version "1.7.22"
-    kotlin("plugin.serialization") version "1.7.22"
+    kotlin("jvm") version "2.0.21"
+    kotlin("plugin.spring") version "2.0.21"
+    kotlin("plugin.serialization") version "2.0.21"
 }
 
 group = "com.react.musicServer"
@@ -43,10 +44,11 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
+tasks.named<KotlinJvmCompile>("compileKotlin"){
+    compilerOptions {
+        freeCompilerArgs.addAll(listOf("-Xjsr305=strict"))
+        jvmTarget.set(JvmTarget.JVM_17)
+        optIn.add("kotlin.RequiresOptIn")
     }
 }
 
